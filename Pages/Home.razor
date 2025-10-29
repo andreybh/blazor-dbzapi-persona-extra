@@ -1,0 +1,66 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<h3>Consulta API DragonBall</h3>
+
+<div class="mb-3">
+    <label class="form-label">PERSONAGEM (ID):</label>
+    
+    <input class="form-control" @bind="characterId" placeholder="Digite o ID (ex: 1)" />
+</div>
+
+<button class="btn btn-primary" @onclick="ConsultarPersonagem">Consultar</button>
+
+<hr />
+
+<h4>Informações do Personagem</h4>
+
+@if (personagem == null && !string.IsNullOrEmpty(errorMessage))
+{
+   
+    <p class="text-danger">@errorMessage</p>
+}
+else if (personagem != null)
+{
+    
+    <div>
+        <img src="@personagem.Image" alt="@personagem.Name" style="max-height: 300px;" />
+        <h5 class="mt-2">@personagem.Name</h5>
+        <p>Raça: @personagem.Race</p>
+    </div>
+}
+else
+{
+    <p>Digite um ID e clique em "Consultar".</p>
+}
+
+
+@code {
+
+    private string characterId = "1";
+
+
+    private Personagem? personagem;
+
+ 
+    private string? errorMessage;
+
+
+    private async Task ConsultarPersonagem()
+    {
+        personagem = null;
+        errorMessage = null;
+
+        try
+        {
+
+            string requestUrl = $"api/characters/{characterId}";
+
+            personagem = await Http.GetFromJsonAsync<Personagem>(requestUrl);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro ao consultar o personagem: {ex.Message}";
+        }
+    }
+}
